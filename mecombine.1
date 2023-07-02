@@ -1,0 +1,88 @@
+.TH MECOMBINE "1" "July 2023" "" "User Commands"
+.SH NAME
+.B mecombine
+\- Combine multi-echo echoes
+.SH SYNOPSIS
+.B mecombine
+.RB [ \-h ]
+.RB [ \-o\ \fIOUTPUTNAME ]
+.RB [ \-a\  { PAID , TE , average }]
+.RB [ \-w\  [ \fIWEIGHTS \ ...]]
+.RB [ \-s ]
+.RB [ \-o\ \fIVOLUMES ]
+.I pattern
+.SH DESCRIPTION
+Tools to combine multiple echoes from an fMRI acquisition.
+It expects input files saved as NIfTIs,
+preferably organised according to the BIDS standard.
+.P
+Currently three different combination algorithms are supported,
+implementing the following weighting schemes:
+.RS +7n
+.IP 1. 4n
+PAID => TE * SNR
+.IP 2. 4n
+TE => TE
+.IP 3. 4n
+Simple Average => 1
+.RE
+.SH OPTIONS
+.SS "POSITIONAL\ ARGUMENTS"
+.TP
+.I pattern
+Globlike search pattern with path
+to select the echo images
+that need to be combined.
+Because of the search,
+be sure to check that
+not too many files are being read
+.SS "OPTIONAL\ ARGUMENTS"
+.TP
+.B \-h\fR,\ \fB\-\-help
+Show a help message and exit
+.TP
+.B \-o\ \fIOUTPUTNAME\fR,\ \fB\-\-outputname\ \fIOUTPUTNAME
+File output name.
+If not a fullpath name,
+then the output will be stored
+in the same folder as the input.
+If empty, the output filename will be
+the filename of the first echo
+appended with a
+.RB \(oq _combined \(cq
+suffix
+(default: \(oq\(cq)
+.TP
+.B \-a\ \fR{\fBPAID\fR,\fBTE\fR,\fBaverage\fR}, \fB\-\-algorithm\ \fR{\fBPAID\fR,\fBTE\fR,\fBaverage\fR}
+Combination algorithm.
+(default:
+.BR TE )
+.TP
+.B \-w\ \fR[\fIWEIGHTS\fR\ ...],\ \fB\-\-weights\ \fR[\fIWEIGHTS\fR\ ...]
+Weights (e.g. = echo times) for all echoes
+(default:
+.BR None )
+.TP
+.B \-s\fR,\ \fB\-\-saveweights
+If passed and algorithm is
+.BR PAID ,
+save weights
+(default:
+.BR False )
+.TP
+.B \-v\ \fIVOLUMES\fR,\ \fB\-\-volumes\ \fIVOLUMES
+Number of volumes that is used to compute the weights
+if algorithm is
+.B PAID
+(default:
+.BR 100 )
+.SH EXAMPLES
+.EX
+mecombine\ '/project/number/bids/sub\-001/func/*_task\-motor_*echo\-*.nii.gz'
+.EE
+.EX
+mecombine\ '/project/number/bids/sub\-001/func/*_task\-rest_*echo\-*.nii.gz'\ \-a\ PAID
+.EE
+.EX
+mecombine\ '/project/number/bids/sub-001/func/*_acq-MBME_*run-01*.nii.gz'\ \-w\ 11\ 22\ 33\ \-o\ sub\-001_task\-stroop_acq\-mecombined_run\-01_bold.nii.gz
+.EE
